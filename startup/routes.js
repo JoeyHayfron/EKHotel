@@ -1,0 +1,26 @@
+const bodyParser = require('body-parser')
+const express = require('express')
+const error = require('../middleware/error')
+const user = require('../routes/users')
+const admin = require('../routes/admins')
+const roomType = require('../routes/roomTypes')
+const room = require('../routes/rooms')
+const rate = require('../routes/rates')
+const booking = require('../routes/bookings')
+const charges = require('../routes/addedCosts')
+const cancels = require('../routes/cancellations')
+
+
+module.exports = function(app){
+    app.use(bodyParser.json())
+    app.use(bodyParser.urlencoded({extended : false}))
+    app.use('/api/users', user)
+    app.use('/api/admins', admin)
+    app.use('/api/room_types', roomType)
+    app.use('/api/rooms', room)
+    app.use('/api/rates', rate)
+    app.use('/api/bookings', booking)
+    app.use('/api/charges', charges)
+    app.use('/api/cancelations', cancels)
+    app.use(error)
+}
