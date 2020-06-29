@@ -37,16 +37,16 @@ router.get('/:id', async(req, res) =>{
 
 router.post('/register', async (req, res) => {
     
-    const validateData = validateUserData(req.body)
+    const validateData = validateAdminData(req.body)
     if(validateData.error)
     return res.status(400).send(validateData.error.details[0].message)
 
-    const userExist = await User.findOne({email: req.body.email})
-    if(userExist)
-    return res.status(400).send('User already exists with this email')
+    const adminExist = await Admin.findOne({email: req.body.email})
+    if(adminExist)
+    return res.status(400).send('Admin already exists with this email')
 
 
-    const user = new User({
+    const admin = new Admin({
         name: req.body.name,
         email: req.body.email,
         phone: req.body.phone,
@@ -58,22 +58,22 @@ router.post('/register', async (req, res) => {
 
     const token = user.generateAuthToken()
     await user.save()
-    res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email', 'phone']))
+    res.header('x-auth-token', token).send(_.pick(admin, ['_id', 'name', 'email', 'phone']))
 })
 
 router.put('/edit', auth, async(req, res) => {
-    const validateData = validateUserData(req.body)
+    const validateData = validateAdminData(req.body)
     if(validateData.error)
     return res.status(400).send(validateData.error.details[0].message)
 
-    const userExist = await User.findOne({email: req.body.email})
-    if(userExist)
-    return res.status(400).send('User with this email already exists')
+    const adminExist = await Admin.findOne({email: req.body.email})
+    if(adminExist)
+    return res.status(400).send('Admin with this email already exists')
 
-    const currentInfo = await User.findById({_id: req.user._id})
+    const currentInfo = await Admin.findById({_id: req.user._id})
     const prevPassword = currentInfo.password
 
-    const user = await User.findOneAndUpdate(req.user._id,
+    const admin = await Admin.findOneAndUpdate(req.user._id,
         {
             name: req.body.name,
             email: req.body.email,
@@ -91,18 +91,18 @@ router.put('/edit', auth, async(req, res) => {
         await user.save()
     }
 
-    res.send(user)
+    res.send(admin)
 })
 
 
 router.put('/edit/:id', auth, async(req, res) => {
-    const validateData = validateUserData(req.body)
+    const validateData = validateAdminData(req.body)
     if(validateData.error)
     return res.status(400).send(validateData.error.details[0].message)
 
-    const userExist = await User.findOne({_id: req.params.id})
-    if(!userExist)
-    return res.status(404).send('User not found')
+    const adminExist = await Admin.findOne({_id: req.params.id})
+    if(!adminExist)
+    return res.status(404).send('Admin not found')
 
     // if(userExist.email === req.body.email)
     // return res.status(400).send('User with this email already exists')
@@ -110,7 +110,7 @@ router.put('/edit/:id', auth, async(req, res) => {
     const prevPassword = userExist.password
 
 
-    const user = await User.findOneAndUpdate(req.params._id,
+    const admin = await Admin.findOneAndUpdate(req.params._id,
         {
             name: req.body.name,
             email: req.body.email,
@@ -124,33 +124,33 @@ router.put('/edit/:id', auth, async(req, res) => {
     if(!passwordNotChanged){
         const passwordSalt = await bcrypt.genSalt(10)
         const newPassword = await bcrypt.hash(passwordSalt, passwordSalt)
-        user.password = newPassword
-        await user.save()
+        admin.password = newPassword
+        await admin.save()
     }else{
-        user.password = prevPassword
-        await user.save()
+        admin.password = prevPassword
+        await admin.save()
     }
 
-    res.send(user)
+    res.send(admin)
 })
 
 
 router.delete('/remove_my_account', auth, async(req, res) => {
-    const user = await User.findOneAndDelete(req.user._id)
+    const admin = await Admin.findOneAndDelete(req.user._id)
 
-    if(!user)
-    return res.status(404).send('User not found')
+    if(!admin)
+    return res.status(404).send('Admin not found')
 
-    res.send(user)
+    res.send(admin)
 })
 
 router.delete('/remove_account/:id', auth, async(req, res) => {
-    const user = await User.findOneAndDelete(req.params._id)
+    const admin = await Admin.findOneAndDelete(req.params._id)
 
-    if(!user)
-    return res.status(404).send('User not found')
+    if(!admin)
+    return res.status(404).send('Admin not found')
 
-    res.send(user)
+    res.send(admin)
 })
 
 
